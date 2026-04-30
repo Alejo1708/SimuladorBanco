@@ -1,0 +1,15 @@
+#Archivos de compilacion
+bin/
+obj/
+
+#Visual Studio
+.vs/        
+
+#Archivos de usuario 
+*.suo
+*.user  
+#Archivos de log
+*.log   
+#Archivos del sistema
+.DS_Store   
+Thumbs.db
