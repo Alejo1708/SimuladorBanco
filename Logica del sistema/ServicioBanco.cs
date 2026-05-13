@@ -61,3 +61,64 @@ namespace SimuladorBanco
                 Console.WriteLine("Cliente no encontrado en el sistema.");
             }
         }
+    // Agrega un cliente existente a la cola de atencion
+        public void AgregarACola(string cedula)
+        {
+            Cliente cliente = banco.Clientes.BuscarPorCedula(cedula);
+            if (cliente != null)
+            {
+                // Solo si el cliente esta registrado, le permitimos formarse en la fila
+                // Ingresa el cliente a la cola.
+                banco.Cola.Encolar(cliente);
+                Console.WriteLine($"{cliente.NombreCompleto} ha sido agregado a la cola de atencion.");
+            }
+            else
+            {
+                Console.WriteLine("No se puede agregar a la cola. El cliente no existe.");
+            }
+        }
+
+        // Llama al siguiente en la fila para procesarlo.
+        public void AtenderSiguiente()
+        {
+            Cliente cliente = banco.Cola.Desencolar();
+            if (cliente != null)
+            {
+                Console.WriteLine($"Atendiendo en ventanilla a: {cliente.NombreCompleto} (Cuenta: {cliente.NumeroCuenta})");
+            }
+            else
+            {
+                Console.WriteLine("No hay clientes en la cola para atender.");
+            }
+        }
+
+        public void MostrarColaAtencion()
+        {
+            banco.Cola.MostrarCola();
+        }
+
+        // Aumenta el saldo de una cuenta y registra la accion en el historial
+        public void RealizarDeposito(string cuenta, decimal monto)
+        {
+            Cliente cliente = banco.Clientes.BuscarPorCuenta(cuenta);
+            if (cliente == null)
+            {
+                Console.WriteLine("Cuenta no encontrada.");
+                return;
+            }
+
+            // Validacion de seguridad: evitar montos negativos o ceros
+            if (monto <= 0)
+            {
+                Console.WriteLine("El monto a depositar debe ser mayor a cero.");
+                return;
+            }
+
+            // Actualizamos la informacion en memoria, aumenta el saldo
+            cliente.Saldo += monto;
+            
+            // Guardamos el paso que acabamos de dar en la Pila por si toca deshacerlo.
+            //Registra la operacion en la pila
+            banco.Historial.Apilar(new Transaccion("Deposito", cuenta, monto));
+            Console.WriteLine($"Deposito exitoso. Nuevo saldo: ${cliente.Saldo}");
+        }
