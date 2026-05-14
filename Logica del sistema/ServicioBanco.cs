@@ -122,3 +122,97 @@ namespace SimuladorBanco
             banco.Historial.Apilar(new Transaccion("Deposito", cuenta, monto));
             Console.WriteLine($"Deposito exitoso. Nuevo saldo: ${cliente.Saldo}");
         }
+        // Disminuye el saldo, siempre y cuando la persona tenga fondos suficientes
+        public void RealizarRetiro(string cuenta, decimal monto)
+        {
+            Cliente cliente = banco.Clientes.BuscarPorCuenta(cuenta);
+            if (cliente == null)
+            {
+                Console.WriteLine("Cuenta no encontrada.");
+                return;
+            }
+
+            if (monto <= 0)
+            {
+                Console.WriteLine("El monto a retirar debe ser mayor a cero.");
+                return;
+            }
+
+            // Verifica que el saldo sea suficiente para el retiro, nunca retirar mas del dinero que se posee
+            if (cliente.Saldo < monto)
+            {
+                Console.WriteLine($"Fondos insuficientes. Saldo actual: ${cliente.Saldo}");
+                return;
+            }
+
+            cliente.Saldo -= monto;
+            
+            // Nuevamente, registramos el movimiento en nuestra estructura tipo Pila.
+            banco.Historial.Apilar(new Transaccion("Retiro", cuenta, monto));
+            Console.WriteLine($"Retiro exitoso. Nuevo saldo: ${cliente.Saldo}");
+        }
+
+        public void ConsultarSaldo(string cuenta)
+        {
+            Cliente cliente = banco.Clientes.BuscarPorCuenta(cuenta);
+            if (cliente != null)
+            {
+                Console.WriteLine($"El saldo actual de la cuenta {cuenta} es: ${cliente.Saldo}");
+            }
+            else
+            {
+                Console.WriteLine("Cuenta no encontrada.");
+            }
+        }
+
+        // Deshace la ultima operacion usando la pila de transacciones.
+        
+        public void DeshacerUltimaTransaccion()
+        {
+            if (banco.Historial.EstaVacia())
+            {
+                Console.WriteLine("No hay transacciones recientes para deshacer.");
+                return;
+            }
+
+            // Sacamos el ultimo movimiento del historial
+            Transaccion ultima = banco.Historial.Desapilar();
+            
+            // Buscamos a quien le habiamos hecho ese movimiento.
+            Cliente cliente = banco.Clientes.BuscarPorCuenta(ultima.NumeroCuenta);
+
+            if (cliente == null)
+            {
+                Console.WriteLine("Error: La cuenta de la ultima transaccion ya no existe.");
+                return;
+            }
+
+            // Si antes sumamos (deposito), la forma de deshacer es restar
+            // Revierte un deposito restando el monto
+            if (ultima.Tipo == "Deposito")
+            {
+                cliente.Saldo -= ultima.Monto;
+                Console.WriteLine($"Se deshizo un deposito de ${ultima.Monto}. Saldo restaurado: ${cliente.Saldo}");
+            }
+            // Si antes restamos (retiro), la forma de deshacer es sumar devolviendo la plata
+            // Revierte un retiro sumando el monto
+            else if (ultima.Tipo == "Retiro")
+            {
+                cliente.Saldo += ultima.Monto;
+                Console.WriteLine($"Se deshizo un retiro de ${ultima.Monto}. Saldo restaurado: ${cliente.Saldo}");
+            }
+        }
+
+        // Calcula reportes usando metodos integrados en nuestra lista enlazada manual
+        // Muestra los totales de clientes y dinero almacenado.
+        public void MostrarInformacionGeneral()
+        {
+            int totalClientes = banco.Clientes.ContarClientes();
+            decimal totalDinero = banco.Clientes.CalcularTotalDinero();
+
+            Console.WriteLine("--- Informacion General del Banco ---");
+            Console.WriteLine($"Total de clientes registrados: {totalClientes}");
+            Console.WriteLine($"Total de dinero en la boveda: ${totalDinero}");
+        }
+    }
+}
