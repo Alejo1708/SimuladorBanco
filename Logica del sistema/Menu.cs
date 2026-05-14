@@ -101,3 +101,50 @@ namespace SimuladorBanco
                 }
             }
         }
+
+        // Metodos de accion del menu 
+        //Sub-metodos para mantener el bloque switch corto y ordenado 
+
+        private void RegistrarNuevoCliente()
+        {
+            string cedula = LeerCadenaNumerica("Ingrese la cedula del cliente (solo numeros): ");
+            string nombre = LeerCadenaNoVacia("Ingrese el nombre completo: ");
+            string cuenta = LeerCadenaNumerica("Ingrese el numero de cuenta (solo numeros): ");
+            decimal saldo = LeerDecimalValido("Ingrese el saldo inicial: ");
+            
+           // Envio de datos validados al servicio bancario
+            // Mandamos los datos ya verificados a la logica del servicio
+            servicio.RegistrarCliente(cedula, nombre, cuenta, saldo);
+        }
+
+        private void BuscarUnCliente()
+        {
+            string cedBuscada = LeerCadenaNumerica("Ingrese la cedula a buscar (solo numeros): ");
+            servicio.BuscarCliente(cedBuscada);
+        }
+
+        private void MandarACola()
+        {
+            string cedCola = LeerCadenaNumerica("Ingrese la cedula del cliente para agregar a la cola (solo numeros): ");
+            servicio.AgregarACola(cedCola);
+        }
+
+        private void HacerDeposito()
+        {
+            string cuentaDep = LeerCadenaNumerica("Ingrese el numero de cuenta (solo numeros): ");
+            decimal montoDep = LeerDecimalValido("Ingrese el monto a depositar: ");
+            servicio.RealizarDeposito(cuentaDep, montoDep);
+        }
+
+        private void HacerRetiro()
+        {
+            string cuentaRet = LeerCadenaNumerica("Ingrese el numero de cuenta (solo numeros): ");
+            decimal montoRet = LeerDecimalValido("Ingrese el monto a retirar: ");
+            servicio.RealizarRetiro(cuentaRet, montoRet);
+        }
+
+        private void ConsultarUnSaldo()
+        {
+            string cuentaSal = LeerCadenaNumerica("Ingrese el numero de cuenta (solo numeros): ");
+            servicio.ConsultarSaldo(cuentaSal);
+        }
