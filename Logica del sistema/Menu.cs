@@ -148,3 +148,98 @@ namespace SimuladorBanco
             string cuentaSal = LeerCadenaNumerica("Ingrese el numero de cuenta (solo numeros): ");
             servicio.ConsultarSaldo(cuentaSal);
         }
+// Metodos de validacion contra errores del usuario 
+
+        // Valida que la cadena ingresada no este vacia ni sea solo espacios
+        // Atrapa al usuario si presiona Enter sin escribir nada. Se usa para textos como el nombre.
+        private string LeerCadenaNoVacia(string mensaje)
+        {
+            string entrada = "";
+            while (string.IsNullOrWhiteSpace(entrada))
+            {
+                Console.Write(mensaje);
+                entrada = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(entrada))
+                {
+                    Console.WriteLine("Este campo no puede estar vacio. Intente de nuevo.");
+                }
+            }
+            return entrada;
+        }
+
+        // Valida que la cadena ingresada contenga unicamente caracteres numericos
+        // Lo usamos para que las cedulas y cuentas nunca lleven letras por error
+        
+        private string LeerCadenaNumerica(string mensaje)
+        {
+            string entrada = "";
+            bool esValido = false;
+
+            while (!esValido)
+            {
+                Console.Write(mensaje);
+                entrada = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(entrada))
+                {
+                    Console.WriteLine("Este campo no puede estar vacio. Intente de nuevo.");
+                }
+                else if (!EsSoloNumeros(entrada))
+                {
+                    Console.WriteLine("Error: Este campo solo permite numeros. Intente de nuevo sin espacios ni letras.");
+                }
+                else
+                {
+                    esValido = true; 
+                }
+            }
+            return entrada;
+        }
+
+         // Verifica si todos los caracteres de un string son digitos
+        // Metodo auxiliar para revisar letra por letra que un texto sea puro numero
+        private bool EsSoloNumeros(string texto)
+        {
+            foreach (char caracter in texto)
+            {
+                if (caracter < '0' || caracter > '9')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Valida el ingreso de un valor decimal positivo con un limite de 12 digitos
+        // Esta validacion ahora incluye el limite maximo de 12 digitos (999,999,999,999)
+        
+        private decimal LeerDecimalValido(string mensaje)
+        {
+            decimal valor;
+            while (true)
+            {
+                Console.Write(mensaje);
+                string entrada = Console.ReadLine();
+                
+                // Intenta la conversion del string a decimal positivo
+                // Primero intenta convertirlo a un numero positivo
+                if (decimal.TryParse(entrada, out valor) && valor >= 0)
+                {
+                    // Verifica el limite maximo permitido.
+                    if (valor <= 999999999999m)
+                    {
+                        return valor;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: El monto ingresado es demasiado grande. El limite es de 12 digitos.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Error: Por favor ingrese un valor numerico valido y positivo. El limite es de 12 digitos");
+                }
+            }
+        }
+    }
+}
